@@ -353,22 +353,32 @@ resource "aws_iam_policy" "statement_reporting_policy_4" {
 }
 
 # ------------------------------------------------------------------------------
+# Look up the role by its known name (avoids depending on module output attribute)
+# ------------------------------------------------------------------------------
+
+data "aws_iam_role" "statement_reporting" {
+  name = "hcptf-wp-phoenix-statement-reporting-123456"
+
+  depends_on = [module.hcptf-wp-phoenix-statement-reporting-123456]
+}
+
+# ------------------------------------------------------------------------------
 # Attach the additional policies to the role created by the module
 # NOTE: The module manages policy-1 via custom_policy. Policies 2-4 are
 #       attached here manually after the role is created.
 # ------------------------------------------------------------------------------
 
 resource "aws_iam_role_policy_attachment" "statement_reporting_policy_2" {
-  role       = module.hcptf-wp-phoenix-statement-reporting-123456.role_name
+  role       = data.aws_iam_role.statement_reporting.name
   policy_arn = aws_iam_policy.statement_reporting_policy_2.arn
 }
 
 resource "aws_iam_role_policy_attachment" "statement_reporting_policy_3" {
-  role       = module.hcptf-wp-phoenix-statement-reporting-123456.role_name
+  role       = data.aws_iam_role.statement_reporting.name
   policy_arn = aws_iam_policy.statement_reporting_policy_3.arn
 }
 
 resource "aws_iam_role_policy_attachment" "statement_reporting_policy_4" {
-  role       = module.hcptf-wp-phoenix-statement-reporting-123456.role_name
+  role       = data.aws_iam_role.statement_reporting.name
   policy_arn = aws_iam_policy.statement_reporting_policy_4.arn
 }
