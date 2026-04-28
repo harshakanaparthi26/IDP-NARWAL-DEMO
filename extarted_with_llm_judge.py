@@ -121,28 +121,25 @@ for field in FIELDS:
         st.write(f"**{field}**")
 
     with col_value:
-        # Show review button only if this field needs review
-        # AND no modal is currently open for another field
-        if needs_review(judge) and val != ss["ui_entities"].get(f"_corrected_{field}"):
-            current_val = ss["ui_entities"].get(field)
-            # If it's been corrected already, show the corrected value
-            if ss["ui_entities"].get(f"_corrected_{field}"):
-                st.write(ss["ui_entities"][f"_corrected_{field}"])
-            else:
-                if st.button("🔵 Review", key=f"review_{field}"):
-                    popup = fetch_hitl_popup(field)
-                    ss["hitl_modal"] = {
-                        "open": True,
-                        "field": field,
-                        "payload": popup
-                    }
-                    st.rerun()
+        is_corrected = f"_corrected_{field}" in ss["ui_entities"]
+    
+        if is_corrected:
+            st.write(ss["ui_entities"][f"_corrected_{field}"])
+        elif needs_review(judge):
+            if st.button("🔵 Review", key=f"review_{field}"):
+                popup = fetch_hitl_popup(field)
+                ss["hitl_modal"] = {
+                    "open": True,
+                    "field": field,
+                    "payload": popup
+                }
+                st.rerun()
         else:
             st.write(val if val is not None else "-")
 
     with col_verdict:
-        # Show green checkmark if corrected, otherwise original verdict
-        if ss["ui_entities"].get(f"_corrected_{field}"):
+        is_corrected = f"_corrected_{field}" in ss["ui_entities"]
+        if is_corrected:
             st.write("✅ CORRECTED")
         else:
             st.write(verdict)
